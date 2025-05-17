@@ -745,7 +745,7 @@ ORDER BY (date, user_id);
 
 ---
 
-# 🗂️ Введение в NoSQL и MongoDB
+# Введение в NoSQL и MongoDB
 
 ---
 
