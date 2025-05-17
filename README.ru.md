@@ -50,4 +50,6 @@
 
 ---
 
+- [🙏 Поддержите проект](support.us.md)
+
 MIT License © 2025, Sergei Peshalov
