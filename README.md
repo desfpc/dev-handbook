@@ -1,4 +1,5 @@
 # 📘 dev-handbook
+![dev-handbook](https://raw.githubusercontent.com/desfpc/dev-handbook/refs/heads/master/logo.png)
 
 > 🇷🇺 [Russian version](README.ru.md) • 🇷🇸 [На српском](README.sr.md)
 
