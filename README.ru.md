@@ -1,4 +1,5 @@
 # 📘 dev-handbook
+![dev-handbook]()
 
 > 🇬🇧 [English version](README.md) • 🇷🇸 [На српском](README.sr.md)
 
