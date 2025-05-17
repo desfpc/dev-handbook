@@ -617,3 +617,324 @@ func (p *ProxyImage) Display() string {
 ```
 
 ---
+
+# 🔄 Поведенческие паттерны проектирования
+
+> Поведенческие паттерны описывают взаимодействие между объектами.  
+
+---
+
+## 🔗 Цепочка обязанностей (Chain of Responsibility)
+
+Передаёт запрос по цепочке обработчиков, пока кто-то не обработает.
+
+**PHP 8**
+```php
+abstract class Handler {
+    public function __construct(protected ?Handler $next = null) {}
+    abstract public function handle(string $req): ?string;
+}
+
+class AuthHandler extends Handler {
+    public function handle(string $req): ?string {
+        return $req === "auth" ? "Auth OK" : $this->next?->handle($req);
+    }
+}
+```
+
+**Go**
+```go
+type Handler interface {
+    Handle(req string) string
+}
+
+type AuthHandler struct {
+    Next Handler
+}
+
+func (h AuthHandler) Handle(req string) string {
+    if req == "auth" {
+        return "Auth OK"
+    }
+    if h.Next != nil {
+        return h.Next.Handle(req)
+    }
+    return "Not handled"
+}
+```
+
+---
+
+## 🧾 Команда (Command)
+
+Оборачивает запрос в объект, позволяя отложить выполнение.
+
+**PHP 8**
+```php
+interface Command {
+    public function execute(): string;
+}
+
+class HelloCommand implements Command {
+    public function execute(): string { return "Hello"; }
+}
+```
+
+**Go**
+```go
+type Command interface {
+    Execute() string
+}
+
+type HelloCommand struct{}
+
+func (HelloCommand) Execute() string { return "Hello" }
+```
+
+---
+
+## 🔁 Итератор (Iterator)
+
+Позволяет поэтапно обходить элементы коллекции.
+
+**PHP 8**
+```php
+class MyCollection implements IteratorAggregate {
+    public function __construct(private array $items) {}
+    public function getIterator(): Traversable {
+        return new ArrayIterator($this->items);
+    }
+}
+```
+
+**Go**
+```go
+items := []string{"a", "b", "c"}
+for _, item := range items {
+    fmt.Println(item)
+}
+```
+
+---
+
+## 🤝 Посредник (Mediator)
+
+Уменьшает связанность объектов, вынося взаимодействие в отдельный объект.
+
+**PHP 8**
+```php
+class Mediator {
+    public function notify(object $sender, string $event): void {
+        echo "Event $event triggered";
+    }
+}
+```
+
+**Go**
+```go
+type Mediator struct{}
+
+func (Mediator) Notify(event string) {
+    fmt.Println("Event", event)
+}
+```
+
+---
+
+## 🧠 Снимок (Memento)
+
+Сохраняет и восстанавливает состояние объекта.
+
+**PHP 8**
+```php
+class Editor {
+    public string $text = '';
+    public function save(): string {
+        return $this->text;
+    }
+    public function restore(string $snapshot): void {
+        $this->text = $snapshot;
+    }
+}
+```
+
+**Go**
+```go
+type Editor struct {
+    Text string
+}
+
+func (e *Editor) Save() string {
+    return e.Text
+}
+
+func (e *Editor) Restore(snap string) {
+    e.Text = snap
+}
+```
+
+---
+
+## 👀 Наблюдатель (Observer)
+
+Оповещает подписчиков об изменениях.
+
+**PHP 8**
+```php
+class Event {
+    private array $subs = [];
+    public function subscribe(callable $cb): void {
+        $this->subs[] = $cb;
+    }
+    public function fire(): void {
+        foreach ($this->subs as $cb) $cb();
+    }
+}
+```
+
+**Go**
+```go
+type Event struct {
+    Subscribers []func()
+}
+
+func (e *Event) Subscribe(cb func()) {
+    e.Subscribers = append(e.Subscribers, cb)
+}
+
+func (e Event) Fire() {
+    for _, cb := range e.Subscribers {
+        cb()
+    }
+}
+```
+
+---
+
+## 🔄 Состояние (State)
+
+Меняет поведение объекта в зависимости от его текущего состояния.
+
+**PHP 8**
+```php
+interface State { public function act(): string; }
+
+class Happy implements State {
+    public function act(): string { return "😊"; }
+}
+
+class Person {
+    public function __construct(private State $state) {}
+    public function behave(): string {
+        return $this->state->act();
+    }
+}
+```
+
+**Go**
+```go
+type State interface {
+    Act() string
+}
+
+type Happy struct{}
+
+func (Happy) Act() string { return "😊" }
+
+type Person struct {
+    State State
+}
+
+func (p Person) Behave() string {
+    return p.State.Act()
+}
+```
+
+---
+
+## 🧠 Стратегия (Strategy)
+
+Инкапсулирует семейство алгоритмов и делает их взаимозаменяемыми.
+
+**PHP 8**
+```php
+interface SortStrategy { public function sort(array $data): array; }
+
+class QuickSort implements SortStrategy {
+    public function sort(array $data): array {
+        sort($data); return $data;
+    }
+}
+```
+
+**Go**
+```go
+type SortStrategy interface {
+    Sort(data []int) []int
+}
+
+type QuickSort struct{}
+
+func (QuickSort) Sort(data []int) []int {
+    sort.Ints(data); return data
+}
+```
+
+---
+
+## 🧱 Шаблонный метод (Template Method)
+
+Определяет алгоритм, оставляя некоторые шаги подклассам.
+
+**PHP 8**
+```php
+abstract class Game {
+    public function play(): string {
+        return $this->start() . " - " . $this->end();
+    }
+    abstract protected function start(): string;
+    abstract protected function end(): string;
+}
+```
+
+**Go**
+```go
+type Game interface {
+    Start() string
+    End() string
+}
+
+func Play(g Game) string {
+    return g.Start() + " - " + g.End()
+}
+```
+
+---
+
+## 👣 Посетитель (Visitor)
+
+Позволяет добавлять поведение, не изменяя классы.
+
+**PHP 8**
+```php
+interface Element {
+    public function accept(Visitor $v): string;
+}
+
+interface Visitor {
+    public function visit(Element $e): string;
+}
+```
+
+**Go**
+```go
+type Element interface {
+    Accept(v Visitor) string
+}
+
+type Visitor interface {
+    Visit(e Element) string
+}
+```
+
+---
