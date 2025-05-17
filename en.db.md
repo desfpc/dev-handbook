@@ -362,6 +362,7 @@ FROM employees;
 Joins allow **combining rows from two or more tables** based on a logical condition.
 
 ### 📋 JOIN Types:
+<img src="https://raw.githubusercontent.com/desfpc/dev-handbook/master/sql_joins.png" alt="dev-handbook" width="500">
 
 | JOIN | Purpose | Example |
 |------|------------|--------|

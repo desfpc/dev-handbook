@@ -1,4 +1,4 @@
-# 📘 dev-handbook
+
 <img src="https://raw.githubusercontent.com/desfpc/dev-handbook/master/logo.png" alt="dev-handbook" width="250">
 
 > 🇬🇧 [English version](README.md) • 🇷🇸 [На српском](README.sr.md)
