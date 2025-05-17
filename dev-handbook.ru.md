@@ -290,3 +290,330 @@ func GetInstance() *singleton {
 ```
 
 ---
+
+## 🧱 Структурные паттерны
+
+### 🔌 Адаптер (Adapter)
+
+Позволяет объектам с несовместимыми интерфейсами работать вместе.
+
+**PHP 8**
+```php
+class OldPrinter {
+    public function printOld(): string {
+        return "Old printing";
+    }
+}
+
+interface NewPrinter {
+    public function print(): string;
+}
+
+class Adapter implements NewPrinter {
+    public function __construct(private OldPrinter $oldPrinter) {}
+
+    public function print(): string {
+        return $this->oldPrinter->printOld();
+    }
+}
+```
+
+**Go**
+```go
+type OldPrinter struct{}
+
+func (OldPrinter) PrintOld() string {
+    return "Old printing"
+}
+
+type NewPrinter interface {
+    Print() string
+}
+
+type Adapter struct {
+    old OldPrinter
+}
+
+func (a Adapter) Print() string {
+    return a.old.PrintOld()
+}
+```
+
+---
+
+### 🌉 Мост (Bridge)
+
+Разделяет абстракцию и реализацию, позволяя их изменять независимо.
+
+**PHP 8**
+```php
+interface Renderer {
+    public function render(string $text): string;
+}
+
+class HTMLRenderer implements Renderer {
+    public function render(string $text): string {
+        return "<p>$text</p>";
+    }
+}
+
+class Message {
+    public function __construct(private Renderer $renderer) {}
+    public function show(string $content): string {
+        return $this->renderer->render($content);
+    }
+}
+```
+
+**Go**
+```go
+type Renderer interface {
+    Render(text string) string
+}
+
+type HTMLRenderer struct{}
+
+func (HTMLRenderer) Render(text string) string {
+    return "<p>" + text + "</p>"
+}
+
+type Message struct {
+    Renderer Renderer
+}
+
+func (m Message) Show(content string) string {
+    return m.Renderer.Render(content)
+}
+```
+
+---
+
+### 🧩 Компоновщик (Composite)
+
+Создаёт древовидную структуру объектов и позволяет обращаться с ними единообразно.
+
+**PHP 8**
+```php
+interface Component {
+    public function render(): string;
+}
+
+class Leaf implements Component {
+    public function render(): string {
+        return "Leaf";
+    }
+}
+
+class Composite implements Component {
+    public function __construct(private array $children = []) {}
+
+    public function render(): string {
+        return implode(', ', array_map(fn($c) => $c->render(), $this->children));
+    }
+}
+```
+
+**Go**
+```go
+type Component interface {
+    Render() string
+}
+
+type Leaf struct{}
+
+func (Leaf) Render() string { return "Leaf" }
+
+type Composite struct {
+    Children []Component
+}
+
+func (c Composite) Render() string {
+    var result string
+    for _, child := range c.Children {
+        result += child.Render() + ", "
+    }
+    return result
+}
+```
+
+---
+
+### 🎁 Декоратор (Decorator)
+
+Динамически добавляет объекту новое поведение без изменения его структуры.
+
+**PHP 8**
+```php
+interface Coffee {
+    public function cost(): int;
+}
+
+class SimpleCoffee implements Coffee {
+    public function cost(): int {
+        return 5;
+    }
+}
+
+class MilkDecorator implements Coffee {
+    public function __construct(private Coffee $base) {}
+
+    public function cost(): int {
+        return $this->base->cost() + 2;
+    }
+}
+```
+
+**Go**
+```go
+type Coffee interface {
+    Cost() int
+}
+
+type SimpleCoffee struct{}
+
+func (SimpleCoffee) Cost() int { return 5 }
+
+type MilkDecorator struct {
+    Base Coffee
+}
+
+func (m MilkDecorator) Cost() int {
+    return m.Base.Cost() + 2
+}
+```
+
+---
+
+### 📦 Фасад (Facade)
+
+Предоставляет простой интерфейс к сложной системе.
+
+**PHP 8**
+```php
+class CPU {
+    public function start(): string { return "CPU start"; }
+}
+class Disk {
+    public function read(): string { return "Disk read"; }
+}
+class Computer {
+    public function __construct(
+        private CPU $cpu,
+        private Disk $disk
+    ) {}
+    public function boot(): string {
+        return $this->cpu->start() . " + " . $this->disk->read();
+    }
+}
+```
+
+**Go**
+```go
+type CPU struct{}
+func (CPU) Start() string { return "CPU start" }
+
+type Disk struct{}
+func (Disk) Read() string { return "Disk read" }
+
+type Computer struct {
+    CPU  CPU
+    Disk Disk
+}
+
+func (c Computer) Boot() string {
+    return c.CPU.Start() + " + " + c.Disk.Read()
+}
+```
+
+---
+
+### 🪶 Легковес (Flyweight)
+
+Экономит память путём повторного использования одинаковых объектов.
+
+**PHP 8**
+```php
+class Char {
+    public function __construct(public string $symbol) {}
+}
+
+class CharFactory {
+    private array $pool = [];
+    public function get(string $s): Char {
+        return $this->pool[$s] ??= new Char($s);
+    }
+}
+```
+
+**Go**
+```go
+type Char struct {
+    Symbol string
+}
+
+type CharFactory struct {
+    Pool map[string]Char
+}
+
+func (f *CharFactory) Get(s string) Char {
+    if f.Pool == nil {
+        f.Pool = make(map[string]Char)
+    }
+    if val, ok := f.Pool[s]; ok {
+        return val
+    }
+    ch := Char{Symbol: s}
+    f.Pool[s] = ch
+    return ch
+}
+```
+
+---
+
+### 🕵 Заместитель (Proxy)
+
+Объект-заменитель, контролирующий доступ к реальному объекту.
+
+**PHP 8**
+```php
+interface Image {
+    public function display(): string;
+}
+
+class RealImage implements Image {
+    public function display(): string {
+        return "Image shown";
+    }
+}
+
+class ProxyImage implements Image {
+    private ?RealImage $real = null;
+    public function display(): string {
+        $this->real ??= new RealImage();
+        return $this->real->display();
+    }
+}
+```
+
+**Go**
+```go
+type Image interface {
+    Display() string
+}
+
+type RealImage struct{}
+func (RealImage) Display() string { return "Image shown" }
+
+type ProxyImage struct {
+    real *RealImage
+}
+
+func (p *ProxyImage) Display() string {
+    if p.real == nil {
+        p.real = &RealImage{}
+    }
+    return p.real.Display()
+}
+```
+
+---
