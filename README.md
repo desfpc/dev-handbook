@@ -1,37 +1,51 @@
 # 📘 dev-handbook
 
-> 🌍 This document is also available in:
->
-> 🇷🇺 [Русский](README.ru.md) • 🇷🇸 [Srpski jezik](README.sr.md)
+> 🇷🇺 [Russian version](README.ru.md) • 🇷🇸 [На српском](README.sr.md)
 
-🧠 **dev-handbook** is a personal developer's reference guide covering essential topics such as OOP, SOLID, design patterns, SQL, indexes, transactions, PHP, Go and PHP frameworks.
+🧠 **dev-handbook** — a personal developer's reference guide covering key topics:
+OOP, SOLID, design patterns, SQL, indexes, transactions, coding principles, best practices,
+system architectures, development methodologies, PHP, Go, and PHP frameworks.
 
 This project is a structured knowledge base for:
 - preparing for technical interviews,
-- systematizing experience,
-- quickly navigating architectural and engineering concepts.
+- systematizing professional experience,
+- quick navigation through architectural and engineering concepts.
 
-## 🔍 Contents
+## 📚 Contents
 
-- OOP / SOLID / GRASP
-- Design Patterns (with PHP8/Go examples)
-- Doctrine ORM / Laravel / Symfony
-- SQL and EXPLAIN
-- Indexes and performance
-- Transactions, isolation levels, deadlocks
-- JOIN best practices and optimization
+### 🧠 [OOP and Design Principles](en.oop.md#-oop-and-design-principles)
+- [OOP (Object-Oriented Programming)](en.oop.md#-oop-object-oriented-programming)
+- [SOLID — 5 OOP Design Principles](en.oop.md#-solid--5-oop-design-principles)
+- [GRASP — General Responsibility Assignment Software Patterns](en.oop.md#-grasp--general-responsibility-assignment-software-patterns)
+
+### 🎯 [Design Patterns](en.oop.md#-design-patterns)
+- [Creational Patterns](en.oop.md#-creational-patterns)
+  - Factory Method, Abstract Factory, Builder, Prototype, Singleton
+- [Structural Patterns](en.oop.md#-structural-patterns)
+  - Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy
+- [Behavioral Patterns](en.oop.md#-behavioral-design-patterns)
+  - Chain of Responsibility, Command, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor
+
+### 💾 [Databases](en.db.md#-databases)
+- [Transactions, Isolation Levels, and Collisions in DBMS](en.db.md#-transactions-isolation-levels-and-collisions-in-dbms)
+- [Indexes and SQL Query Analysis](en.db.md#-indexes-and-sql-query-analysis-explain)
+- [SQL: Grouping, JOINs, and Optimization Techniques](en.db.md#-sql-grouping-joins-and-complex-query-optimization-techniques)
+- [Partitioning, Replication, and Sharding](en.db.md#-partitioning-replication-and-sharding-in-dbms)
+- [Column-oriented Databases and ClickHouse](en.db.md#-column-oriented-databases-and-clickhouse)
+- [NoSQL and MongoDB](en.db.md#introduction-to-nosql-and-mongodb)
+- [Redis and KeyDB](en.db.md#-redis-and-keydb-basics-architecture-and-advantages)
 
 ## 📎 Format
 
-- Markdown (`.md`) — GitHub-friendly
-- Clear explanations + real code samples
-- No fluff, just practical value
+- Markdown (`.md`) — convenient for GitHub
+- Clear explanations + real code examples
+- No fluff, only practical value
 
-## ⚙ For use by
+## ⚙ Who Will Find This Useful
 
 - Backend and Fullstack developers
 - Candidates for Junior / Middle / Senior / Lead positions
-- Quick pre-interview preparation
+- For quick interview preparation
 
 ---
 
