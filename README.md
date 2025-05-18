@@ -60,5 +60,6 @@ This project is a structured knowledge base for:
 ---
 
 - [🙏 Support the Project](support.us.md)
+- [🤝 How to Contribute](CONTRIBUTING.md)
 
 MIT License © 2025, Sergei Peshalov

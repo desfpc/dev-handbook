@@ -51,5 +51,6 @@
 ---
 
 - [🙏 Подржите пројекат](support.us.md)
+- [🤝 Како допринети](CONTRIBUTING.sr.md)
 
 MIT License © 2025, Sergei Peshalov
