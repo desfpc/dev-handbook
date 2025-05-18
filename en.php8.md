@@ -1,7 +1,6 @@
 [📚 Contents](README.md)
 
 - [🐘 PHP 8 — Advanced Topics for Mid+/Senior Developers](#-php-8--advanced-topics-for-midsenior-developers)
-  - [📚 Built-in Interfaces and Classes in PHP](#-built-in-interfaces-and-classes-in-php)
   - [🧱 Object-Oriented Programming (OOP) in PHP](#-object-oriented-programming-oop-in-php)
   - [🧭 `self::` vs `static::` — Late Static Binding Difference](#-self-vs-static--late-static-binding-difference)
   - [🔐 Visibility Modifiers](#-visibility-modifiers)
@@ -10,6 +9,7 @@
   - [✨ Magic Methods in PHP 8](#-magic-methods-in-php-8)
   - [🚫 strict_types — Type Strictness](#-strict_types--type-strictness)
   - [🔁 Generators and `yield` in PHP](#-generators-and-yield-in-php)
+  - [📚 Built-in Interfaces and Classes in PHP](#-built-in-interfaces-and-classes-in-php)
   - [📐 PSR — PHP Standards Recommendations](#-psr--php-standards-recommendations)
   - [📦 Composer — PHP Dependency Manager](#-composer--php-dependency-manager)
 
@@ -19,280 +19,6 @@
 📎 [Official documentation on php.net](https://www.php.net/manual/en/index.php)
 
 This document covers some basic and less obvious but extremely important topics for understanding PHP 8.
-
----
-
-# 📚 Built-in Interfaces and Classes in PHP
-
-PHP provides a number of built-in interfaces that can be used to create more flexible, scalable, and "natively supported" components. They are especially actively used in SPL (Standard PHP Library), as well as in serialization mechanisms, iteration, error handling, and array logic.
-
----
-
-## 🔁 Iteration and Collections
-
-### `Traversable`
-- Base interface for all iterable objects.
-- Cannot be implemented directly — need `Iterator` or `IteratorAggregate`.
-
-### `Iterator`
-- Complete iterator interface (like `foreach`).
-- Requires implementation of:  
-  `current()`, `key()`, `next()`, `rewind()`, `valid()`
-
-### `IteratorAggregate`
-
-- Provides iteration through the `getIterator()` method, returning a `Traversable`
-  (used for delegation of iteration):
-
-
-```php
-class Collection implements IteratorAggregate {
-    public function getIterator(): Traversable {
-        return new ArrayIterator($this->items);
-    }
-}
-```
-
-### `SeekableIterator`
-- Extends `Iterator` by adding the `seek($position)` method — moving to a specific position.
-
----
-
-## 📦 Collections and Key Access
-
-### `ArrayAccess`
-- Allows working with an object as an array: `$obj[0] = 'value';`
-- Methods:  
-  `offsetExists()`, `offsetGet()`, `offsetSet()`, `offsetUnset()`
-
-### `Countable`
-- Allows using `count($obj)`
-- Requires implementation of `count(): int`
-
----
-
-## 💾 Serialization and Encoding
-
-### `Serializable`
-- Custom serialization:
-    - `serialize()`
-    - `unserialize(string $data)`
-
-### `JsonSerializable`
-- Used in `json_encode()`
-- Method: `jsonSerialize(): mixed`
-
----
-
-## 🚨 Error Handling
-
-### `Throwable`
-- Base interface for all exceptions and errors.
-- Supports `Exception` and `Error`.
-
-
-- All errors and exceptions inherit from `Throwable`.
-- You can catch both `Exception` and `Error` via `catch (Throwable $e)`.
-- Support for nested exceptions:
-
-```php
-throw new Exception("Error", 0, $previous);
-```
-
----
-
-### `Exception`
-- Standard exceptions (classes must inherit from `Exception`).
-
-### `Error`
-- Fatal errors (inherits from `Throwable`).
-
----
-
-## 📚 Additional SPL Interfaces
-
-### `OuterIterator`
-- Wraps another iterator. Method: `getInnerIterator()`
-
-### `RecursiveIterator`
-- An iterator that can contain other iterators (hierarchy).
-- Methods: `hasChildren()`, `getChildren()`
-
-### `RecursiveIteratorIterator`
-- Traverses a `RecursiveIterator` in depth.
-
-### `CountableIterator` *(doesn't exist, often confused with `Countable` + `Iterator`)*
-
----
-
-## 🔢 ArrayAccess
-
-Allows accessing an object as an array:
-
-```php
-class Collection implements ArrayAccess {
-    public function offsetExists($offset) { ... }
-    public function offsetGet($offset) { ... }
-    public function offsetSet($offset, $value) { ... }
-    public function offsetUnset($offset) { ... }
-}
-```
-
-Used in containers, DTOs, settings.
-
----
-
-## 🔁 Serializable
-
-Allows controlling how an object is serialized:
-
-```php
-class User implements Serializable {
-    public function serialize(): string { ... }
-    public function unserialize($data): void { ... }
-}
-```
-
-📌 Deprecated in favor of `__serialize()` / `__unserialize()` since PHP 7.4+
-
----
-
-## 🔒 SensitiveParameterValue
-
-A class that hides the value when logging exceptions.
-
-```php
-function login(string $user, SensitiveParameterValue $password) {
-    throw new Exception("Invalid password");
-}
-```
-
-Used in tracing/debugging to hide sensitive data.
-
----
-
-## 🔐 __PHP_Incomplete_Class
-
-A class automatically used by PHP when an object of an unknown class is serialized.  
-Encountered when using `unserialize()` if the class no longer exists.
-
----
-
-## 🧠 Closure
-
-Anonymous functions are instances of the `Closure` class:
-
-```php
-$fn = function($x) { return $x * 2; };
-```
-
-You can use `bindTo()` and `call()` to change the execution context.
-
----
-
-## 📦 stdClass
-
-An "empty" universal object:
-
-```php
-$obj = new stdClass();
-$obj->name = "test";
-```
-
-Often used for converting `array → object`.
-
----
-
-## ⚙️ Generator
-
-An object that is returned when calling a function with `yield`.
-
-```php
-function gen() {
-    yield 1;
-    yield 2;
-}
-```
-
-`Generator` objects implement `Iterator`.
-
-See the section [Generators and `yield` in PHP](#-generators-and-yield-in-php)
-
----
-
-## 🧵 Fiber (PHP 8.1+)
-
-A mechanism for cooperative multitasking:
-
-```php
-$fiber = new Fiber(function (): void {
-    $value = Fiber::suspend("pause");
-    echo $value;
-});
-$fiber->start();
-```
-
-Allows temporarily "suspending" execution and returning later.
-
----
-
-## 🧷 WeakReference
-
-Creates a weak reference to an object:
-
-```php
-$ref = WeakReference::create($obj);
-$obj = null;
-$ref->get(); // null — object destroyed
-```
-
-Used in caches and GC-sensitive structures.
-
----
-
-## 🗺 WeakMap
-
-An associative array with object keys. When an object is destroyed, the key is also removed.
-
-```php
-$map = new WeakMap();
-$map[$obj] = "cached";
-```
-
----
-
-## 🧵 Stringable (PHP 8.0+)
-
-A marker interface. If a class implements `__toString()`, it automatically `implements Stringable`.
-
-You can explicitly specify:
-
-```php
-class MyClass implements Stringable {
-    public function __toString(): string { ... }
-}
-```
-
----
-
-## 🔠 UnitEnum / BackedEnum (PHP 8.1+)
-
-- `UnitEnum` — base interface for all enums.
-- `BackedEnum` — for enums with a bound value (int|string):
-
-```php
-enum Status: string {
-    case Active = 'active';
-    case Disabled = 'disabled';
-}
-```
-
-Allows using `->value`, `from()`, `tryFrom()` and `cases()`.
-
----
-
-These interfaces are the foundation of many built-in and third-party libraries. Understanding them and knowing how to apply them in practice distinguishes a confident developer.
-
 
 ---
 
@@ -957,6 +683,279 @@ echo "Return: " . $gen->getReturn();
 - Stream processing.
 - When **memory efficiency** is important.
 - For **gradual value generation** (e.g., tree, graph).
+
+---
+
+# 📚 Built-in Interfaces and Classes in PHP
+
+PHP provides a number of built-in interfaces that can be used to create more flexible, scalable, and "natively supported" components. They are especially actively used in SPL (Standard PHP Library), as well as in serialization mechanisms, iteration, error handling, and array logic.
+
+---
+
+## 🔁 Iteration and Collections
+
+### `Traversable`
+- Base interface for all iterable objects.
+- Cannot be implemented directly — need `Iterator` or `IteratorAggregate`.
+
+### `Iterator`
+- Complete iterator interface (like `foreach`).
+- Requires implementation of:  
+  `current()`, `key()`, `next()`, `rewind()`, `valid()`
+
+### `IteratorAggregate`
+
+- Provides iteration through the `getIterator()` method, returning a `Traversable`
+  (used for delegation of iteration):
+
+
+```php
+class Collection implements IteratorAggregate {
+    public function getIterator(): Traversable {
+        return new ArrayIterator($this->items);
+    }
+}
+```
+
+### `SeekableIterator`
+- Extends `Iterator` by adding the `seek($position)` method — moving to a specific position.
+
+---
+
+## 📦 Collections and Key Access
+
+### `ArrayAccess`
+- Allows working with an object as an array: `$obj[0] = 'value';`
+- Methods:  
+  `offsetExists()`, `offsetGet()`, `offsetSet()`, `offsetUnset()`
+
+### `Countable`
+- Allows using `count($obj)`
+- Requires implementation of `count(): int`
+
+---
+
+## 💾 Serialization and Encoding
+
+### `Serializable`
+- Custom serialization:
+  - `serialize()`
+  - `unserialize(string $data)`
+
+### `JsonSerializable`
+- Used in `json_encode()`
+- Method: `jsonSerialize(): mixed`
+
+---
+
+## 🚨 Error Handling
+
+### `Throwable`
+- Base interface for all exceptions and errors.
+- Supports `Exception` and `Error`.
+
+
+- All errors and exceptions inherit from `Throwable`.
+- You can catch both `Exception` and `Error` via `catch (Throwable $e)`.
+- Support for nested exceptions:
+
+```php
+throw new Exception("Error", 0, $previous);
+```
+
+---
+
+### `Exception`
+- Standard exceptions (classes must inherit from `Exception`).
+
+### `Error`
+- Fatal errors (inherits from `Throwable`).
+
+---
+
+## 📚 Additional SPL Interfaces
+
+### `OuterIterator`
+- Wraps another iterator. Method: `getInnerIterator()`
+
+### `RecursiveIterator`
+- An iterator that can contain other iterators (hierarchy).
+- Methods: `hasChildren()`, `getChildren()`
+
+### `RecursiveIteratorIterator`
+- Traverses a `RecursiveIterator` in depth.
+
+### `CountableIterator` *(doesn't exist, often confused with `Countable` + `Iterator`)*
+
+---
+
+## 🔢 ArrayAccess
+
+Allows accessing an object as an array:
+
+```php
+class Collection implements ArrayAccess {
+    public function offsetExists($offset) { ... }
+    public function offsetGet($offset) { ... }
+    public function offsetSet($offset, $value) { ... }
+    public function offsetUnset($offset) { ... }
+}
+```
+
+Used in containers, DTOs, settings.
+
+---
+
+## 🔁 Serializable
+
+Allows controlling how an object is serialized:
+
+```php
+class User implements Serializable {
+    public function serialize(): string { ... }
+    public function unserialize($data): void { ... }
+}
+```
+
+📌 Deprecated in favor of `__serialize()` / `__unserialize()` since PHP 7.4+
+
+---
+
+## 🔒 SensitiveParameterValue
+
+A class that hides the value when logging exceptions.
+
+```php
+function login(string $user, SensitiveParameterValue $password) {
+    throw new Exception("Invalid password");
+}
+```
+
+Used in tracing/debugging to hide sensitive data.
+
+---
+
+## 🔐 __PHP_Incomplete_Class
+
+A class automatically used by PHP when an object of an unknown class is serialized.  
+Encountered when using `unserialize()` if the class no longer exists.
+
+---
+
+## 🧠 Closure
+
+Anonymous functions are instances of the `Closure` class:
+
+```php
+$fn = function($x) { return $x * 2; };
+```
+
+You can use `bindTo()` and `call()` to change the execution context.
+
+---
+
+## 📦 stdClass
+
+An "empty" universal object:
+
+```php
+$obj = new stdClass();
+$obj->name = "test";
+```
+
+Often used for converting `array → object`.
+
+---
+
+## ⚙️ Generator
+
+An object that is returned when calling a function with `yield`.
+
+```php
+function gen() {
+    yield 1;
+    yield 2;
+}
+```
+
+`Generator` objects implement `Iterator`.
+
+See the section [Generators and `yield` in PHP](#-generators-and-yield-in-php)
+
+---
+
+## 🧵 Fiber (PHP 8.1+)
+
+A mechanism for cooperative multitasking:
+
+```php
+$fiber = new Fiber(function (): void {
+    $value = Fiber::suspend("pause");
+    echo $value;
+});
+$fiber->start();
+```
+
+Allows temporarily "suspending" execution and returning later.
+
+---
+
+## 🧷 WeakReference
+
+Creates a weak reference to an object:
+
+```php
+$ref = WeakReference::create($obj);
+$obj = null;
+$ref->get(); // null — object destroyed
+```
+
+Used in caches and GC-sensitive structures.
+
+---
+
+## 🗺 WeakMap
+
+An associative array with object keys. When an object is destroyed, the key is also removed.
+
+```php
+$map = new WeakMap();
+$map[$obj] = "cached";
+```
+
+---
+
+## 🧵 Stringable (PHP 8.0+)
+
+A marker interface. If a class implements `__toString()`, it automatically `implements Stringable`.
+
+You can explicitly specify:
+
+```php
+class MyClass implements Stringable {
+    public function __toString(): string { ... }
+}
+```
+
+---
+
+## 🔠 UnitEnum / BackedEnum (PHP 8.1+)
+
+- `UnitEnum` — base interface for all enums.
+- `BackedEnum` — for enums with a bound value (int|string):
+
+```php
+enum Status: string {
+    case Active = 'active';
+    case Disabled = 'disabled';
+}
+```
+
+Allows using `->value`, `from()`, `tryFrom()` and `cases()`.
+
+---
+
+These interfaces are the foundation of many built-in and third-party libraries. Understanding them and knowing how to apply them in practice distinguishes a confident developer.
 
 ---
 

@@ -37,11 +37,11 @@ This project is a structured knowledge base for:
 - [Redis and KeyDB](en.db.md#-redis-and-keydb-basics-architecture-and-advantages)
 
 ### 🐘 [PHP 8 — Advanced Topics](en.php8.md#-php-8--advanced-topics-for-midsenior-developers)
-- [Built-in Interfaces and Classes in PHP](en.php8.md#-built-in-interfaces-and-classes-in-php)
 - [OOP in PHP](en.php8.md#-object-oriented-programming-oop-in-php)
 - [Magic Methods in PHP 8](en.php8.md#-magic-methods-in-php-8)
 - [strict_types — Type Strictness](en.php8.md#-strict_types--type-strictness)
 - [Generators and yield in PHP](en.php8.md#-generators-and-yield-in-php)
+- [Built-in Interfaces and Classes in PHP](en.php8.md#-built-in-interfaces-and-classes-in-php)
 - [PSR — PHP Standards Recommendations](en.php8.md#-psr--php-standards-recommendations)
 - [Composer — PHP Dependency Manager](en.php8.md#-composer--php-dependency-manager)
 
