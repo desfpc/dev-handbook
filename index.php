@@ -4,6 +4,8 @@ declare(strict_types=1);
  * dev-handbook - Markdown to HTML converter
  */
 
+require_once __DIR__ . '/vendor/Parsedown/Parsedown.php';
+
 $availableLanguages = ['ru', 'sr'];
 $availableSections = ['db', 'oop', 'php8'];
 $defaultLanguage = 'en';
@@ -107,153 +109,9 @@ function parseMarkdown(
     array $availableLanguages,
     array $availableSections
 ): string {
-    // Basic Markdown parsing
-
-    // Replace headers with proper ID attributes for anchors
-    $markdown = preg_replace_callback('/^# (.*?)$/m', function($matches) {
-        $id = generateAnchorId($matches[1]);
-        return "<h1 id=\"$id\">{$matches[1]}</h1>";
-    }, $markdown);
-
-    $markdown = preg_replace_callback('/^## (.*?)$/m', function($matches) {
-        $id = generateAnchorId($matches[1]);
-        return "<h2 id=\"$id\">{$matches[1]}</h2>";
-    }, $markdown);
-
-    $markdown = preg_replace_callback('/^### (.*?)$/m', function($matches) {
-        $id = generateAnchorId($matches[1]);
-        return "<h3 id=\"$id\">{$matches[1]}</h3>";
-    }, $markdown);
-
-    // Process tables
-    $markdown = processMarkdownTables($markdown);
-
-    // Replace links
-    $markdown = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $markdown);
-
-    // Replace bold text
-    $markdown = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $markdown);
-
-    // Replace italic text
-    $markdown = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $markdown);
-
-    // Replace code blocks with language specifier
-    // Use a more precise regex to ensure we capture the entire code block
-    $markdown = preg_replace_callback('/```(.*?)\n([\s\S]*?)```/m', function($matches) {
-        $language = trim($matches[1]);
-        $code = $matches[2];
-        return "<pre>$language<code>$code</code></pre>";
-    }, $markdown);
-
-    // Replace inline code
-    $markdown = preg_replace('/`(.*?)`/', '<code>$1</code>', $markdown);
-
-    // Process lists (including nested lists)
-    $markdown = processMarkdownLists($markdown);
-
-    // Replace paragraphs (but not inside lists, tables, or code blocks)
-    $markdown = preg_replace('/^(?!<[a-z]|```)(.*?)$/m', '<p>$1</p>', $markdown);
-
-    // Replace images
-    $markdown = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $markdown);
-
-    // Replace horizontal rules
-    $markdown = preg_replace('/^---$/m', '<hr>', $markdown);
-
-    // Replace document links to site routing links
-    $markdown = processSiteLinks($markdown, $defaultLanguage, $availableLanguages, $availableSections);
-
-    return $markdown;
-}
-
-/**
- * Process Markdown tables
- */
-function processMarkdownTables(string $markdown): string
-{
-    // Find table blocks
-    $pattern = '/^\|(.*)\|$/m';
-    if (preg_match_all($pattern, $markdown, $matches, PREG_OFFSET_CAPTURE)) {
-        $tableBlocks = [];
-        $currentBlock = [];
-        $lastOffset = -1;
-
-        foreach ($matches[0] as $match) {
-            $line = $match[0];
-            $offset = $match[1];
-
-            // Check if this line is part of the current block
-            if ($lastOffset !== -1 && $offset - $lastOffset > strlen($line) + 10) {
-                // This line is not part of the current block
-                if (!empty($currentBlock)) {
-                    $tableBlocks[] = $currentBlock;
-                    $currentBlock = [];
-                }
-            }
-
-            $currentBlock[] = $line;
-            $lastOffset = $offset;
-        }
-
-        // Add the last block
-        if (!empty($currentBlock)) {
-            $tableBlocks[] = $currentBlock;
-        }
-
-        // Process each table block
-        foreach ($tableBlocks as $tableBlock) {
-            $tableHtml = "<table>\n";
-
-            // Process each row
-            foreach ($tableBlock as $index => $row) {
-                $cells = array_map('trim', explode('|', trim($row, '|')));
-
-                // Check if this is a header separator row
-                if ($index === 1 && preg_match('/^[\s\-:]+$/', implode('', $cells))) {
-                    continue;
-                }
-
-                $tableHtml .= "<tr>\n";
-
-                // Process each cell
-                foreach ($cells as $cell) {
-                    // Determine if this is a header row
-                    $tag = ($index === 0) ? 'th' : 'td';
-                    $tableHtml .= "<$tag>$cell</$tag>\n";
-                }
-
-                $tableHtml .= "</tr>\n";
-            }
-
-            $tableHtml .= "</table>";
-
-            // Replace the table block with the HTML
-            $markdown = str_replace(implode("\n", $tableBlock), $tableHtml, $markdown);
-        }
-    }
-
-    return $markdown;
-}
-
-function processMarkdownLists(string $markdown): string
-{
-    // Replace unordered lists
-    $pattern = '/^([ ]*)-[ ]+(.*?)$/m';
-    preg_match_all($pattern, $markdown, $matches, PREG_SET_ORDER);
-
-    foreach ($matches as $match) {
-        $indentation = strlen($match[1]);
-        $content = $match[2];
-        $replacement = str_repeat('  ', $indentation) . "<li>$content</li>";
-        $markdown = str_replace($match[0], $replacement, $markdown);
-    }
-
-    // Wrap list items in <ul> tags
-    $markdown = preg_replace('/((?:<li>.*?<\/li>\n)+)/', '<ul>$1</ul>', $markdown);
-
-    // Fix nested lists
-    $markdown = preg_replace('/<\/li>\n<ul>/', '<ul>', $markdown);
-    $markdown = preg_replace('/<\/ul>\n<\/li>/', '</ul></li>', $markdown);
+    $parsedown = new Parsedown();
+    $markdown  = $parsedown->text($markdown);
+    $markdown  = processSiteLinks($markdown, $defaultLanguage, $availableLanguages, $availableSections);
 
     return $markdown;
 }
@@ -283,27 +141,6 @@ function processSiteLinks(
     return $markdown;
 }
 
-/*function clearTrash(string $markdown): string TODO delete if not necessary
-{
-    $trushArr = [
-        '<p><code></code></p>',
-    ];
-
-    return str_replace($trushArr, '', $markdown);
-}*/
-
-function generateAnchorId(string $text): string
-{
-    $id = strtolower($text);
-    $id = preg_replace('/[^a-z0-9]+/', '-', $id);
-
-    // Remove leading and trailing hyphens
-    $id = trim($id, '-');
-
-    // Add a leading hyphen to match the format in URLs
-    return '-' . $id;
-}
-
 function createHtmlPage(string $content, string $anchor): string
 {
     $html = <<<HTML
@@ -313,6 +150,7 @@ function createHtmlPage(string $content, string $anchor): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Ysabeau+SC:wght@1..1000&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/darcula.css">
     <title>dev-handbook</title>
     <style>
     body {
@@ -342,9 +180,7 @@ function createHtmlPage(string $content, string $anchor): string
     }
 
     pre {
-      background: #2d2d3a;
-      color: #e0e0e0;
-      padding: 1em;
+      padding: 0;
       border-radius: 6px;
       overflow-x: auto;
       font-size: 0.95em;
@@ -487,6 +323,7 @@ function createHtmlPage(string $content, string $anchor): string
   <div class="content">
     $content
   </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
     <script>
         document.querySelectorAll('nav a').forEach(link => {
           link.addEventListener('click', () => {
@@ -494,9 +331,9 @@ function createHtmlPage(string $content, string $anchor): string
           });
         });
     </script>
+    <script>hljs.highlightAll();</script>
 </body>
 </html>
 HTML;
-
     return $html;
 }
