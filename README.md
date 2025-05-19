@@ -1,4 +1,3 @@
-
 <img src="https://raw.githubusercontent.com/desfpc/dev-handbook/master/logo.png" alt="dev-handbook" width="250">
 
 > 🇷🇺 [Russian version](README.ru.md) • 🇷🇸 [На српском](README.sr.md)
