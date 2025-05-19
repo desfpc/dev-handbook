@@ -137,8 +137,13 @@ function parseMarkdown(
     // Replace italic text
     $markdown = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $markdown);
 
-    // Replace code blocks
-    $markdown = preg_replace('/```(.*?)```/s', '<pre><code>$1</code></pre>', $markdown);
+    // Replace code blocks with language specifier
+    // Use a more precise regex to ensure we capture the entire code block
+    $markdown = preg_replace_callback('/```(.*?)\n([\s\S]*?)```/m', function($matches) {
+        $language = trim($matches[1]);
+        $code = $matches[2];
+        return "<pre>$language<code>$code</code></pre>";
+    }, $markdown);
 
     // Replace inline code
     $markdown = preg_replace('/`(.*?)`/', '<code>$1</code>', $markdown);
@@ -146,8 +151,8 @@ function parseMarkdown(
     // Process lists (including nested lists)
     $markdown = processMarkdownLists($markdown);
 
-    // Replace paragraphs (but not inside lists or tables)
-    $markdown = preg_replace('/^(?!<[a-z])(.*?)$/m', '<p>$1</p>', $markdown);
+    // Replace paragraphs (but not inside lists, tables, or code blocks)
+    $markdown = preg_replace('/^(?!<[a-z]|```)(.*?)$/m', '<p>$1</p>', $markdown);
 
     // Replace images
     $markdown = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $markdown);
@@ -278,6 +283,15 @@ function processSiteLinks(
     return $markdown;
 }
 
+/*function clearTrash(string $markdown): string TODO delete if not necessary
+{
+    $trushArr = [
+        '<p><code></code></p>',
+    ];
+
+    return str_replace($trushArr, '', $markdown);
+}*/
+
 function generateAnchorId(string $text): string
 {
     $id = strtolower($text);
@@ -342,6 +356,20 @@ function createHtmlPage(string $content, string $anchor): string
       padding: 0.2em 0.4em;
       border-radius: 4px;
       color: #ffcb6b;
+    }
+    
+    pre code {
+      display: block;
+    }
+    
+    code p {
+      padding: 0;
+      margin: 0;
+      display: inline-block;
+    }
+
+    pre p code {
+      display: none;
     }
 
     p code, li code {
@@ -443,7 +471,7 @@ function createHtmlPage(string $content, string $anchor): string
       .menu-toggle {
         display: block;
       }
-      
+
       .content {
         padding: 10px;
       }
