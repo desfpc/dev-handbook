@@ -154,164 +154,167 @@ function createHtmlPage(string $content, string $anchor): string
     <title>dev-handbook</title>
     <style>
     body {
-      background-color: #1e1e2f;
-      color: #e0e0e0;
-      font-family: "Ysabeau SC", serif;
-      line-height: 1.6;
-      margin: 0 auto;
-      padding: 10px;
-      box-sizing: border-box;
-    }
+  background-color: #1b1b1b;
+  color: #a9b7c6;
+  font-family: "Ysabeau SC", serif;
+  line-height: 1.6;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
 
-    h1, h2, h3, h4 {
-      color: #ffffff;
-      font-weight: 600;
-      border-bottom: 1px solid #444;
-      padding-bottom: 0.3em;
-      margin-top: 2em;
-    }
+h1, h2, h3, h4 {
+  color: #ffffff;
+  font-weight: 600;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.3em;
+  margin-top: 2em;
+}
 
-    a {
-      color: #79b8ff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
+a {
+  color: #4eade5; /* ссылки как XML-теги */
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
 
-    pre {
-      padding: 0;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-size: 0.95em;
-    }
+pre {
+  padding: 0;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.95em;
+  background: #2b2b2b;
+  color: #a9b7c6;
+}
 
-    code {
-      font-family: 'Fira Code', monospace;
-      background: #2d2d3a;
-      padding: 0.2em 0.4em;
-      border-radius: 4px;
-      color: #ffcb6b;
-    }
-    
-    pre code {
-      display: block;
-    }
-    
-    code p {
-      padding: 0;
-      margin: 0;
-      display: inline-block;
-    }
+code {
+  font-family: 'Fira Code', monospace;
+  background: #2b2b2b;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  color: #ffcb6b;
+}
 
-    pre p code {
-      display: none;
-    }
+pre code {
+  display: block;
+}
 
-    p code, li code {
-      font-size: 0.95em;
-    }
+code p {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1.5em;
-      background-color: #2d2d3a;
-    }
+pre p code {
+  display: none;
+}
 
-    th, td {
-      padding: 0.8em;
-      border: 1px solid #444;
-      text-align: left;
-    }
+p code, li code {
+  font-size: 0.95em;
+}
 
-    th {
-      background-color: #3a3a4f;
-      color: #f0f0f0;
-      font-weight: 600;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5em;
+  background-color: #2d2d3a;
+}
 
-    blockquote {
-      border-left: 4px solid #555;
-      padding-left: 1em;
-      color: #aaa;
-      margin: 1em 0;
-    }
+th, td {
+  padding: 0.8em;
+  border: 1px solid #444;
+  text-align: left;
+}
 
-    ul, ol {
-      padding-left: 1.5em;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    nav {
-      background-color: #2d2d3a;
-      width: 250px;
-      padding: 1em;
-      overflow-y: auto;
-      transition: transform 0.3s ease;
-      position: fixed;
-    }
+th {
+  background-color: #3a3a4f;
+  color: #f0f0f0;
+  font-weight: 600;
+}
 
-    nav h2 {
-      color: #ffffff;
-      font-size: 1.2em;
-      margin-bottom: 0.5em;
-    }
+blockquote {
+  border-left: 4px solid #606366;
+  padding-left: 1em;
+  color: #aaa;
+  margin: 1em 0;
+}
 
-    nav a {
-      display: block;
-      color: #79b8ff;
-      text-decoration: none;
-      margin: 0.4em 0;
-    }
+ul, ol {
+  padding-left: 1.5em;
+}
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+img {
+  max-width: 100%;
+  height: auto;
+}
 
-    .content {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 0 0 0 300px;
-    }
+nav {
+  background-color: #2b2b2b;
+  width: 250px;
+  padding: 1em;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  position: fixed;
+}
 
-    .menu-toggle {
-      display: none;
-      position: absolute;
-      top: 1em;
-      left: 1em;
-      background: #3a3a4f;
-      color: #fff;
-      border: none;
-      padding: 0.5em 1em;
-      border-radius: 4px;
-      cursor: pointer;
-      z-index: 1000;
-    }
+nav h2 {
+  color: #ffffff;
+  font-size: 1.2em;
+  margin-bottom: 0.5em;
+}
 
-    @media (max-width: 768px) {
-      nav {
-        position: absolute;
-        height: auto;
-        transform: translateX(-100%);
-        z-index: 999;
-        padding-top: 40px;
-      }
+nav a {
+  display: block;
+  color: #4eade5;
+  text-decoration: none;
+  margin: 0.4em 0;
+}
+nav a:hover {
+  text-decoration: underline;
+}
 
-      nav.open {
-        transform: translateX(0);
-      }
+.content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 0 0 300px;
+}
 
-      .menu-toggle {
-        display: block;
-      }
+.menu-toggle {
+  display: none;
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  background: #3a3a4f;
+  color: #fff;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+}
 
-      .content {
-        padding: 10px;
-      }
-    }
+@media (max-width: 768px) {
+  nav {
+    position: absolute;
+    height: auto;
+    transform: translateX(-100%);
+    z-index: 999;
+    padding-top: 40px;
+  }
+
+  nav.open {
+    transform: translateX(0);
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .content {
+    padding: 10px;
+  }
+}
     </style>
 </head>
 <body>
