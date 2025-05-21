@@ -24,14 +24,6 @@ $requestUri = rtrim($requestUri, '/');
 $parts = explode('/', trim($requestUri, '/'));
 $language = $defaultLanguage;
 $section = '';
-$anchor = '';
-
-// Extract anchor if present
-$lastPart = end($parts);
-if (str_starts_with($lastPart, '-')) {
-    $anchor = $lastPart;
-    array_pop($parts);
-}
 
 // Determine language and section based on URL parts
 if (count($parts) > 0) {
@@ -49,8 +41,6 @@ if (count($parts) > 0) {
 
 // Determine which file to load
 $filePath = '';
-
-//die('language: ' . $language . '; defaultLanguage:' . $defaultLanguage . '; section: ' . $section . '; anchor: ' . $anchor);
 
 if (empty($section)) {
     // Main page for the selected language
@@ -95,10 +85,10 @@ if ($markdownContent === false) {
 }
 
 // Convert Markdown to HTML
-$htmlContent = parseMarkdown($markdownContent, $defaultLanguage, $availableLanguages, $availableSections);
+[$htmlContent, $htmlMenu] = parseMarkdown($markdownContent, $defaultLanguage, $availableLanguages, $availableSections);
 
 // Create the HTML page
-$html = createHtmlPage($htmlContent, $anchor);
+$html = createHtmlPage($htmlContent, $htmlMenu);
 
 // Output the HTML
 echo $html;
@@ -108,13 +98,50 @@ function parseMarkdown(
     string $defaultLanguage,
     array $availableLanguages,
     array $availableSections
-): string {
+): array {
     $parsedown = new Parsedown();
+    $menu = '';
+
     $markdown  = $parsedown->text($markdown);
+    $markdown  = processAnchors($markdown);
     $markdown  = processSiteLinks($markdown, $defaultLanguage, $availableLanguages, $availableSections);
 
-    return $markdown;
+    return [$markdown, $menu];
 }
+
+function processAnchors(string $markdown): string
+{
+    $pattern = '/<h([1-6])>(.*?)<\/h\1>/';
+
+    return preg_replace_callback($pattern, function($matches) {
+        $level = $matches[1];
+        $text = $matches[2];
+        $id = createHeadingId($text);
+
+        return "<h{$level} id=\"{$id}\">{$text}</h{$level}>";
+    }, $markdown);
+}
+
+function createHeadingId(string $text): string
+{
+    $text = strip_tags($text);
+    $text = mb_strtolower($text, 'UTF-8');
+    //$text = preg_replace('/[^\p{L}\p{N}\s-]/u', '', $text);
+    //$text = preg_replace('/[\s]+/', '-', $text);
+    //$text = preg_replace('/-+/', '-', $text);
+
+    // Заменяем пробелы на дефисы
+    $text = preg_replace('/\s+/', '-', $text);
+
+    // Заменяем множественные дефисы на одинарный
+    //$text = preg_replace('/-+/', '-', $text);
+
+
+    //return trim($text, '-');
+
+    return $text;
+}
+
 
 function processSiteLinks(
     string $markdown,
@@ -141,7 +168,7 @@ function processSiteLinks(
     return $markdown;
 }
 
-function createHtmlPage(string $content, string $anchor): string
+function createHtmlPage(string $content, string $menu): string
 {
     $html = <<<HTML
 <!DOCTYPE html>
@@ -278,6 +305,7 @@ nav a:hover {
   flex-grow: 1;
   overflow-y: auto;
   padding: 0 0 0 300px;
+  max-width: 1400px;
 }
 
 .menu-toggle {
@@ -292,6 +320,10 @@ nav a:hover {
   border-radius: 4px;
   cursor: pointer;
   z-index: 1000;
+}
+
+.no-under-line, .no-under-line:hover {
+  text-decoration: none;
 }
 
 @media (max-width: 768px) {
@@ -320,8 +352,10 @@ nav a:hover {
 <body>
   <button class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('open')">Menu</button>
   <nav>
-    тут будет
-    <br> что нибудь
+    $menu
+    
+    <br><br>
+    <a class="no-under-line" href="https://nozhove.com" target="_blank"><img src="https://nozhove.com/nozhove_pixel.png" width="40" alt="Nozhove.com"></a>
   </nav>
   <div class="content">
     $content
